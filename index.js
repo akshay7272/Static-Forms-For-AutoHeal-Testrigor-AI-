@@ -21,7 +21,6 @@ document.getElementById("signupForm").addEventListener("submit", function (e) {
 // Handle Registration Form
 document.getElementById("registrationForm").addEventListener("submit", function (e) {
   e.preventDefault();
-
   const username = document.getElementById("username").value.trim();
   const regEmail = document.getElementById("regEmail").value.trim();
   const regPassword = document.getElementById("regPassword").value;

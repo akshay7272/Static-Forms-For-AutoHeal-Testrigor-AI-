@@ -19,28 +19,28 @@ document.getElementById("signupForm").addEventListener("submit", function (e) {
 });
 
 // Handle Registration Form
-// document.getElementById("registrationForm").addEventListener("submit", function (e) {
-//   e.preventDefault();
+document.getElementById("registrationForm").addEventListener("submit", function (e) {
+  e.preventDefault();
 
-//   const username = document.getElementById("username").value.trim();
-//   const regEmail = document.getElementById("regEmail").value.trim();
-//   const regPassword = document.getElementById("regPassword").value;
-//   const confirmPassword = document.getElementById("confirmPassword").value;
-//   const regMessage = document.getElementById("regMessage");
+  const username = document.getElementById("username").value.trim();
+  const regEmail = document.getElementById("regEmail").value.trim();
+  const regPassword = document.getElementById("regPassword").value;
+  const confirmPassword = document.getElementById("confirmPassword").value;
+  const regMessage = document.getElementById("regMessage");
 
-//   if (!username || !regEmail || !regPassword || !confirmPassword) {
-//     regMessage.textContent = "Please complete all fields.";
-//     regMessage.style.color = "red";
-//     return;
-//   }
+  if (!username || !regEmail || !regPassword || !confirmPassword) {
+    regMessage.textContent = "Please complete all fields.";
+    regMessage.style.color = "red";
+    return;
+  }
 
-//   if (regPassword !== confirmPassword) {
-//     regMessage.textContent = "Passwords do not match.";
-//     regMessage.style.color = "red";
-//     return;
-//   }
+  if (regPassword !== confirmPassword) {
+    regMessage.textContent = "Passwords do not match.";
+    regMessage.style.color = "red";
+    return;
+  }
 
-//   regMessage.textContent = "Registration successful!";
-//   regMessage.style.color = "green";
-//   document.getElementById("registrationForm").reset();
-// });
+  regMessage.textContent = "Registration successful!";
+  regMessage.style.color = "green";
+  document.getElementById("registrationForm").reset();
+});

@@ -54,3 +54,7 @@ color: white !important;
 .gender-options {
     display: flex;
 }
+.first-container, .second-container {
+display: flex;
+justify-content: space_between;
+}

@@ -56,5 +56,5 @@ color: white !important;
 }
 .first-container, .second-container {
 display: flex;
-justify-content: space_between;
+justify-content: space-between;
 }

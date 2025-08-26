@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auto-Heal AI Testing UI</title>
+    <style>
+        * {margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif;}
+        body {background: #f7f9fc; color: #333; display: flex; flex-direction: column; align-items: center;}
+        header {background: #2d2f3e; color: #fff; padding: 15px 20px; width: 100%; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 3px 10px rgba(0,0,0,0.2);}
+        header h1 {font-size: 22px;}
+        nav button {background: #444; color: #fff; border: none; padding: 10px 15px; margin: 0 5px; cursor: pointer; border-radius: 5px; transition: background 0.3s;}
+        nav button:hover {background: #666;}
+        .active-tab {background: #007bff !important;}
+        #content {width: 95%; max-width: 1200px; margin-top: 20px;}
+        .section {display: none; padding: 20px; background: #fff; box-shadow: 0 3px 10px rgba(0,0,0,0.1); border-radius: 10px; margin-bottom: 20px;}
+        .visible {display: block;}
+        button {cursor: pointer;}
+
+        /* Forms */
+        form {display: flex; flex-direction: column; max-width: 400px;}
+        form input, form select, form textarea {padding: 10px; margin: 8px 0; border: 1px solid #ccc; border-radius: 5px;}
+        form button {background: #007bff; color: #fff; padding: 10px; border: none; border-radius: 5px;}
+        .error {color: red; font-size: 13px;}
+        .success {color: green; font-size: 14px; margin-top: 8px;}
+
+        /* Table Styling */
+        table {width: 100%; border-collapse: collapse; margin-top: 15px;}
+        th, td {border: 1px solid #ddd; padding: 10px; text-align: center;}
+        th {background: #007bff; color: #fff;}
+
+        /* Card Grid */
+        .card-container {display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px;}
+        .card {background: #fff; border: 1px solid #ddd; border-radius: 10px; padding: 15px; box-shadow: 0 3px 10px rgba(0,0,0,0.1);}
+        .card button {background: #28a745; color: #fff; padding: 6px 12px; border: none; border-radius: 5px;}
+
+        /* Trigger Button */
+        #triggerChanges {margin: 20px 0; padding: 12px 18px; background: #e63946; color: white; font-size: 16px; border: none; border-radius: 8px;}
+
+        /* Modal */
+        .modal {display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center;}
+        .modal-content {background: #fff; padding: 20px; border-radius: 8px; width: 350px; text-align: center;}
+        .close-btn {background: #ff4444; color: #fff; padding: 8px 12px; border: none; border-radius: 5px;}
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>AI Auto-Heal Testing</h1>
+    <nav>
+        <button data-target="dashboard" class="active-tab">Dashboard</button>
+        <button data-target="forms">Forms</button>
+        <button data-target="tables">Tables</button>
+        <button data-target="cards">Cards</button>
+        <button data-target="modalSection">Modal</button>
+    </nav>
+</header>
+
+<div id="content">
+    <!-- Dashboard -->
+    <div id="dashboard" class="section visible">
+        <h2>Dashboard Overview</h2>
+        <p>This section has charts, analytics, and random updates for testing auto-heal.</p>
+    </div>
+
+    <!-- Forms Section -->
+    <div id="forms" class="section">
+        <h2>Form Validation Testing</h2>
+        <form id="testForm">
+            <input type="text" id="name" placeholder="Enter your name">
+            <span id="nameError" class="error"></span>
+            <input type="email" id="email" placeholder="Enter your email">
+            <span id="emailError" class="error"></span>
+            <input type="number" id="age" placeholder="Enter your age">
+            <span id="ageError" class="error"></span>
+            <button type="submit">Submit Form</button>
+            <p id="formSuccess" class="success"></p>
+        </form>
+    </div>
+
+    <!-- Tables Section -->
+    <div id="tables" class="section">
+        <h2>Dynamic Data Table</h2>
+        <table>
+            <thead>
+                <tr><th>ID</th><th>Name</th><th>Status</th></tr>
+            </thead>
+            <tbody id="tableBody">
+                <tr><td>1</td><td>Product A</td><td>Active</td></tr>
+                <tr><td>2</td><td>Product B</td><td>Inactive</td></tr>
+                <tr><td>3</td><td>Product C</td><td>Active</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Cards Section -->
+    <div id="cards" class="section">
+        <h2>Dynamic Cards</h2>
+        <div class="card-container" id="cardContainer">
+            <div class="card"><h3>Card 1</h3><p>Details about card 1.</p><button>View More</button></div>
+            <div class="card"><h3>Card 2</h3><p>Details about card 2.</p><button>View More</button></div>
+            <div class="card"><h3>Card 3</h3><p>Details about card 3.</p><button>View More</button></div>
+        </div>
+    </div>
+
+    <!-- Modal Section -->
+    <div id="modalSection" class="section">
+        <h2>Modal Testing</h2>
+        <button id="openModal">Open Modal</button>
+    </div>
+</div>
+
+<!-- Trigger Changes -->
+<button id="triggerChanges">Trigger Random Changes</button>
+
+<!-- Modal -->
+<div class="modal" id="modal">
+    <div class="modal-content">
+        <h2>AI Auto-Heal Modal</h2>
+        <p>This modal UI changes dynamically when triggered!</p>
+        <button class="close-btn" id="closeModal">Close</button>
+    </div>
+</div>
+
+<script>
+    const navButtons = document.querySelectorAll("nav button");
+    const sections = document.querySelectorAll(".section");
+
+    navButtons.forEach(btn => {
+        btn.addEventListener("click", () => {
+            sections.forEach(sec => sec.classList.remove("visible"));
+            navButtons.forEach(b => b.classList.remove("active-tab"));
+            document.getElementById(btn.dataset.target).classList.add("visible");
+            btn.classList.add("active-tab");
+        });
+    });
+
+    // Form Validation
+    document.getElementById("testForm").addEventListener("submit", function(e) {
+        e.preventDefault();
+        let name = document.getElementById("name").value.trim();
+        let email = document.getElementById("email").value.trim();
+        let age = document.getElementById("age").value.trim();
+        let valid = true;
+
+        document.getElementById("nameError").textContent = name ? "" : "Name required";
+        document.getElementById("emailError").textContent = email && /\S+@\S+\.\S+/.test(email) ? "" : "Invalid email";
+        document.getElementById("ageError").textContent = age && age > 0 ? "" : "Enter valid age";
+
+        if (!name || !email || !age || !/\S+@\S+\.\S+/.test(email) || age <= 0) valid = false;
+
+        if (valid) {
+            document.getElementById("formSuccess").textContent = "Form submitted successfully!";
+            setTimeout(() => { document.getElementById("formSuccess").textContent = ""; }, 3000);
+        }
+    });
+
+    // Modal
+    const modal = document.getElementById("modal");
+    document.getElementById("openModal").addEventListener("click", () => modal.style.display = "flex");
+    document.getElementById("closeModal").addEventListener("click", () => modal.style.display = "none");
+    window.addEventListener("click", e => { if (e.target === modal) modal.style.display = "none"; });
+
+    // Trigger Random Changes
+    document.getElementById("triggerChanges").addEventListener("click", () => {
+        const buttons = document.querySelectorAll("button");
+        const randomLabels = ["Proceed", "Confirm", "Next", "Go", "Continue", "Click Me", "Tap Here", "Open", "Start Now", "Explore"];
+        buttons.forEach(btn => btn.textContent = randomLabels[Math.floor(Math.random() * randomLabels.length)]);
+        document.querySelectorAll("input, textarea, select").forEach(el => {
+            el.placeholder = "Updated: " + el.placeholder.split(":").pop();
+        });
+    });
+</script>
+
+</body>
+</html>

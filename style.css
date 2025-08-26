@@ -53,11 +53,12 @@ button:hover {
 #link {
 text-decoration: none !important;
 color: white !important;
+width: auto;
 }
 .gender-options {
     display: flex;
 }
 .first-container, .second-container {
 display: flex;
-justify-content: space-between;
+justify-content: space-between !important;
 }

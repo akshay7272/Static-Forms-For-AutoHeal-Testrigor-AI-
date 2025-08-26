@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Auto-Heal AI Testing Playground — Combined</title>
+<style>
+  :root{
+    --primary:#1976d2; --accent:#ff9800; --danger:#f44336; --muted:#777;
+    --card-bg: #fff; --page-bg:#f4f7fb;
+  }
+  *{box-sizing:border-box}
+  body{
+    font-family: "Segoe UI", Roboto, Arial, sans-serif;
+    margin:0; padding:24px; background:var(--page-bg); color:#222;
+  }
+  .wrap{max-width:1200px;margin:0 auto}
+  header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+  header h1{color:var(--primary);font-size:20px;margin:0}
+  header p{margin:0;color:var(--muted)}
+  .controls{display:flex;gap:10px}
+  .btn{
+    padding:10px 14px;border-radius:8px;border:none;cursor:pointer;font-weight:600;
+    background:var(--primary); color:#fff;
+  }
+  .btn.secondary{background:#4caf50}
+  .btn.danger{background:var(--danger)}
+  .grid{display:grid;grid-template-columns:repeat(12,1fr);gap:18px}
+  section{background:var(--card-bg);border-radius:12px;padding:14px;box-shadow:0 6px 18px rgba(20,30,50,0.06)}
+  .col-4{grid-column:span 4}
+  .col-8{grid-column:span 8}
+  .col-12{grid-column:span 12}
+  h2{margin:0 0 10px;color:var(--primary);font-size:16px}
+  form{display:flex;flex-direction:column;gap:8px}
+  label{font-size:13px;color:#333}
+  input,select,textarea,button{padding:10px;border-radius:8px;border:1px solid #d5dce6;font-size:14px}
+  input::placeholder{color:#9aa6b2}
+  .form-actions{display:flex;gap:8px;margin-top:8px}
+  .success{color:green;font-weight:700;margin-top:6px}
+  .error{color:var(--danger);font-weight:700;margin-top:6px}
+  .product-list{display:flex;gap:12px;flex-wrap:wrap}
+  .card{width:220px;padding:10px;border-radius:10px;background:#fafcff;box-shadow:0 2px 8px rgba(16,24,40,0.03)}
+  .card img{width:100%;height:120px;border-radius:8px;object-fit:cover}
+  .card h3{font-size:15px;margin:8px 0 4px}
+  .card p{margin:0 0 8px;color:var(--muted)}
+  .profile{display:flex;gap:12px;align-items:center;padding:10px;border-radius:10px;background:#e8f4ff}
+  .profile img{width:56px;height:56px;border-radius:50%;object-fit:cover}
+  table{width:100%;border-collapse:collapse;margin-top:8px}
+  th,td{padding:10px;border:1px solid #e6eef6;text-align:center}
+  th{background:var(--primary);color:#fff}
+  .log-area{max-height:220px;overflow:auto}
+  .small{font-size:13px;color:var(--muted)}
+  @media (max-width:900px){
+    .col-4,.col-8{grid-column:span 12}
+    .product-list{justify-content:center}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Auto-Heal AI Testing Playground</h1>
+      <p class="small">Click <strong>Trigger Random Changes</strong> to alter UI labels, placeholders & button names.</p>
+    </div>
+    <div class="controls">
+      <button id="triggerBtn" class="btn">Trigger Random Changes</button>
+      <button id="randomDomBtn" class="btn secondary" title="Also simulate add/remove elements">Random DOM Mutate</button>
+      <button id="resetBtn" class="btn danger">Reset UI</button>
+    </div>
+  </header>
+
+  <div class="grid">
+    <!-- FORMS -->
+    <section class="col-4">
+      <h2>Login Form</h2>
+      <form id="loginForm" novalidate>
+        <label for="loginEmail">Email</label>
+        <input id="loginEmail" type="email" placeholder="name@domain.com" required>
+        <label for="loginPassword">Password</label>
+        <input id="loginPassword" type="password" placeholder="Enter password" required minlength="6">
+        <div class="form-actions">
+          <button id="loginSubmit" type="submit" class="btn">Login</button>
+          <button id="loginAlt" type="button" class="btn secondary">Forgot?</button>
+        </div>
+        <div id="loginMsg" aria-live="polite"></div>
+      </form>
+    </section>
+
+    <section class="col-4">
+      <h2>Signup Form</h2>
+      <form id="signupForm" novalidate>
+        <label for="fullName">Full name</label>
+        <input id="fullName" type="text" placeholder="Your full name" required minlength="3">
+        <label for="signupEmail">Email</label>
+        <input id="signupEmail" type="email" placeholder="example@you.com" required>
+        <label for="signupPassword">Password</label>
+        <input id="signupPassword" type="password" placeholder="Create password" required minlength="6">
+        <div class="form-actions">
+          <button id="signupSubmit" type="submit" class="btn">Sign Up</button>
+          <button id="signupAlt" type="button" class="btn secondary">Help</button>
+        </div>
+        <div id="signupMsg" aria-live="polite"></div>
+      </form>
+    </section>
+
+    <section class="col-4">
+      <h2>Contact Form</h2>
+      <form id="contactForm" novalidate>
+        <label for="contactName">Name</label>
+        <input id="contactName" type="text" placeholder="Name" required minlength="2">
+        <label for="contactEmail">Email</label>
+        <input id="contactEmail" type="email" placeholder="Email" required>
+        <label for="contactMsg">Message</label>
+        <textarea id="contactMsg" rows="3" placeholder="Your message" required></textarea>
+        <div class="form-actions">
+          <button id="contactSubmit" type="submit" class="btn">Send Message</button>
+          <button id="contactClear" type="button" class="btn secondary">Clear</button>
+        </div>
+        <div id="contactMsgBox" aria-live="polite"></div>
+      </form>
+    </section>
+
+    <!-- PRODUCTS -->
+    <section class="col-8">
+      <h2>Products</h2>
+      <div class="product-list" id="productList">
+        <div class="card" data-prod="p1" id="prod-1">
+          <img src="https://picsum.photos/seed/p1/420/280" alt="product 1">
+          <h3 id="prodTitle-1">Samsung Galaxy S24</h3>
+          <p id="prodPrice-1">₹65,000</p>
+          <button class="btn cartBtn">Add to Cart</button>
+        </div>
+        <div class="card" data-prod="p2" id="prod-2">
+          <img src="https://picsum.photos/seed/p2/420/280" alt="product 2">
+          <h3 id="prodTitle-2">Apple iPhone 16</h3>
+          <p id="prodPrice-2">₹1,25,000</p>
+          <button class="btn cartBtn">Add to Cart</button>
+        </div>
+        <div class="card" data-prod="p3" id="prod-3">
+          <img src="https://picsum.photos/seed/p3/420/280" alt="product 3">
+          <h3 id="prodTitle-3">OnePlus 13 Pro</h3>
+          <p id="prodPrice-3">₹55,000</p>
+          <button class="btn cartBtn">Add to Cart</button>
+        </div>
+      </div>
+
+      <h2 style="margin-top:14px">Product Table</h2>
+      <table id="productTable">
+        <thead><tr><th>Item</th><th>Price</th><th>Status</th><th>Action</th></tr></thead>
+        <tbody>
+          <tr id="row-1"><td>Monitor</td><td>$200</td><td>Available</td><td><button class="btn tableBtn">Buy</button></td></tr>
+          <tr id="row-2"><td>Keyboard</td><td>$50</td><td>Out of Stock</td><td><button class="btn tableBtn">Notify</button></td></tr>
+          <tr id="row-3"><td>Mouse</td><td>$25</td><td>Available</td><td><button class="btn tableBtn">Add</button></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- PROFILES & LOG -->
+    <section class="col-4">
+      <h2>User Profiles</h2>
+      <div class="profile" id="profile-1">
+        <img src="https://i.pravatar.cc/60?img=5" alt="john">
+        <div><strong id="profileName-1">John Doe</strong><div class="small" id="profileRole-1">Software Engineer</div></div>
+      </div>
+      <div class="profile" id="profile-2" style="margin-top:10px">
+        <img src="https://i.pravatar.cc/60?img=12" alt="priya">
+        <div><strong id="profileName-2">Priya Sharma</strong><div class="small" id="profileRole-2">UI/UX Designer</div></div>
+      </div>
+
+      <h2 style="margin-top:12px">Change Log</h2>
+      <div class="log-area" id="logContainer" style="margin-top:8px">
+        <table><thead><tr><th>Element</th><th>Old</th><th>New</th></tr></thead>
+        <tbody id="changeLog"><tr><td colspan="3" class="small">No changes yet</td></tr></tbody></table>
+      </div>
+    </section>
+
+    <section class="col-12">
+      <h2>Notes & Tools</h2>
+      <p class="small">Use the buttons above to mutate the UI. The log shows what changed. Forms perform validation; on success the message is shown in <span style="font-weight:700;color:green">green</span>.</p>
+    </section>
+  </div>
+</div>
+
+<script>
+(function(){
+  // store original text/placeholder values for reset
+  var snapshot = {};
+
+  function saveSnapshot(){
+    snapshot = {};
+    // inputs & textareas placeholders & values
+    document.querySelectorAll("input,textarea").forEach(function(el){
+      var key = el.id || (el.name || el.tagName + "-" + (Math.random()*1e6|0));
+      snapshot[key] = { type: "input", placeholder: el.placeholder || "", value: el.value || "" };
+    });
+    // buttons text
+    document.querySelectorAll("button").forEach(function(btn, i){
+      var key = btn.id || ("button-" + i);
+      snapshot[key] = { type: "button", text: btn.innerText };
+      // also keep original text in data attribute for safety
+      if(!btn.dataset.orig) btn.dataset.orig = btn.innerText;
+    });
+    // other text nodes by id (titles, prices, names)
+    var otherIds = [
+      "prodTitle-1","prodTitle-2","prodTitle-3","prodPrice-1","prodPrice-2","prodPrice-3",
+      "profileName-1","profileRole-1","profileName-2","profileRole-2"
+    ];
+    otherIds.forEach(function(id){
+      var el = document.getElementById(id);
+      if(el) snapshot[id] = { type: "text", text: el.innerText };
+    });
+  }
+
+  // helper random utilities
+  function randFrom(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+  function shuffle(s){ return s.split("").sort(function(){return 0.5-Math.random()}).join(""); }
+
+  // replacement pools
+  var buttonPool = [
+    "Confirm Now","Proceed","Buy Instantly","Quick Buy","Purchase","Checkout Now",
+    "Complete","Order Now","Pay Securely","Add Item","Reserve","Get It"
+  ];
+
+  var namePool = ["Aman Kumar","Rohit Singh","Sakshi Patel","Neha Verma","Ananya Roy","Vikram Das"];
+  var rolePool = ["Frontend Dev","Product Designer","QA Engineer","SDET","Project Manager","DevOps"];
+  var productNames = ["Galaxy X","iPhone Neo","OnePlus Nova","Pixel Beam","Moto Edge"];
+  var pricePool = ["₹69,999","₹1,39,999","₹59,999","₹29,999","₹19,999"];
+
+  // init snapshot
+  saveSnapshot();
+
+  // utility to append log row
+  function logChange(elName, oldVal, newVal){
+    var tbody = document.getElementById("changeLog");
+    if(tbody.querySelector("tr td[colspan]")) tbody.innerHTML = ""; // remove default
+    var tr = document.createElement("tr");
+    tr.innerHTML = "<td style='text-align:left;'>" + escapeHtml(elName) + "</td><td>" + escapeHtml(oldVal) + "</td><td>" + escapeHtml(newVal) + "</td>";
+    tbody.insertBefore(tr, tbody.firstChild);
+  }
+
+  function escapeHtml(s){
+    return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+  }
+
+  // Main random change function
+  function triggerRandomChanges(){
+    // change placeholders for inputs
+    var namePlace = ["Enter full name","Type your name","Your name here"];
+    var emailPlace = ["name@domain.com","you@example.com","email id"];
+    var passPlace = ["Create password","At least 6 chars","Use a strong pass"];
+
+    var inputs = [
+      ["loginEmail", emailPlace],
+      ["loginPassword", passPlace],
+      ["fullName", namePlace],
+      ["signupEmail", emailPlace],
+      ["signupPassword", passPlace],
+      ["contactName", namePlace],
+      ["contactEmail", emailPlace],
+      ["contactMsg", ["Write message","Tell us more","Your message here"]]
+    ];
+
+    inputs.forEach(function(pair){
+      var el = document.getElementById(pair[0]);
+      if(!el) return;
+      var old = el.placeholder || "";
+      var neu = randFrom(pair[1]);
+      el.placeholder = neu;
+      logChange("#" + pair[0], old || "(empty placeholder)", neu);
+    });
+
+    // change product titles & prices
+    [1,2,3].forEach(function(i){
+      var tId = "prodTitle-" + i, pId = "prodPrice-" + i;
+      var tel = document.getElementById(tId), pel = document.getElementById(pId);
+      if(tel){
+        var old = tel.innerText;
+        var neu = randFrom(productNames) + " " + (Math.floor(Math.random()*900)+100);
+        tel.innerText = neu;
+        logChange("#" + tId, old, neu);
+      }
+      if(pel){
+        var oldp = pel.innerText;
+        var newp = randFrom(pricePool);
+        pel.innerText = newp;
+        logChange("#" + pId, oldp, newp);
+      }
+    });
+
+    // change profile names & roles
+    [1,2].forEach(function(i){
+      var nameId = "profileName-" + i, roleId = "profileRole-" + i;
+      var nel = document.getElementById(nameId), rel = document.getElementById(roleId);
+      if(nel){
+        var oldn = nel.innerText, newn = randFrom(namePool);
+        nel.innerText = newn;
+        logChange("#" + nameId, oldn, newn);
+      }
+      if(rel){
+        var oldr = rel.innerText, newr = randFrom(rolePool);
+        rel.innerText = newr;
+        logChange("#" + roleId, oldr, newr);
+      }
+    });
+
+    // change every button text to a similar but different name
+    document.querySelectorAll("button").forEach(function(btn, idx){
+      var old = btn.innerText;
+      // pick random from pool but avoid same string
+      var candidate = randFrom(buttonPool);
+      // small tweak to make similar-but-different: sometimes shuffle or add suffix
+      if(Math.random() < 0.4) candidate = candidate + (Math.random()<0.5 ? " ✓" : " »");
+      if(candidate === old) candidate = candidate + " Now";
+      btn.innerText = candidate;
+      logChange(btn.id || ("button[" + idx + "]"), old, candidate);
+    });
+  }
+
+  // random DOM mutate: add/remove small elements to simulate structure changes
+  function randomDomMutate(){
+    var pl = document.getElementById("productList");
+    if(Math.random() < 0.6){
+      // add new card
+      var id = "prod-new-" + (Math.floor(Math.random()*1000));
+      var div = document.createElement("div");
+      div.className = "card";
+      div.id = id;
+      div.innerHTML = '<img src="https://picsum.photos/seed/' + id + '/420/280" alt=""><h3>' + randFrom(productNames) + '</h3><p>' + randFrom(pricePool) + '</p><button class="btn cartBtn">Buy</button>';
+      pl.appendChild(div);
+      logChange("#" + id, "(n/a)", "added product card");
+    } else {
+      // remove random product if >3
+      var cards = pl.querySelectorAll(".card");
+      if(cards.length > 2){
+        var rem = cards[Math.floor(Math.random()*cards.length)];
+        logChange("#" + rem.id, rem.innerText.trim().split("\n")[0], "removed");
+        rem.remove();
+      }
+    }
+  }
+
+  // reset UI to snapshot
+  function resetUI(){
+    // inputs
+    document.querySelectorAll("input,textarea").forEach(function(el){
+      var key = el.id || (el.name || el.tagName + "-" + (Math.random()*1e6|0));
+      if(snapshot[key]){
+        el.placeholder = snapshot[key].placeholder;
+        el.value = snapshot[key].value;
+      }
+    });
+    // buttons
+    document.querySelectorAll("button").forEach(function(btn, idx){
+      var key = btn.id || ("button-" + idx);
+      if(snapshot[key] && snapshot[key].text !== undefined){
+        btn.innerText = snapshot[key].text;
+      } else if(btn.dataset.orig){
+        btn.innerText = btn.dataset.orig;
+      }
+    });
+    // other texts
+    Object.keys(snapshot).forEach(function(k){
+      if(snapshot[k].type === "text"){
+        var el = document.getElementById(k);
+        if(el) el.innerText = snapshot[k].text;
+      }
+    });
+    // remove any added prod-new-* cards
+    document.querySelectorAll("[id^='prod-new-']").forEach(function(el){
+      el.remove();
+    });
+    // clear log
+    var tbody = document.getElementById("changeLog");
+    tbody.innerHTML = '<tr><td colspan="3" class="small">Reset to original state</td></tr>';
+  }
+
+  // --- Form validations & success messages ---
+  function showMsg(targetEl, text, ok){
+    targetEl.innerText = text;
+    targetEl.className = ok ? "success" : "error";
+    // clear after 4s
+    setTimeout(function(){ if(targetEl.innerText === text) targetEl.innerText = ""; }, 4000);
+  }
+  function isEmailValid(v){
+    v = (v||"").trim();
+    // basic email pattern
+    var pat = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return pat.test(v);
+  }
+
+  // Login form
+  document.getElementById("loginForm").addEventListener("submit", function(e){
+    e.preventDefault();
+    var email = document.getElementById("loginEmail").value.trim();
+    var pass = document.getElementById("loginPassword").value;
+    var out = document.getElementById("loginMsg");
+    if(!email || !pass){
+      showMsg(out, "All fields are required", false); return;
+    }
+    if(!isEmailValid(email)){ showMsg(out, "Please enter a valid email", false); return; }
+    if(pass.length < 6){ showMsg(out, "Password must be at least 6 chars", false); return; }
+    showMsg(out, "Login successful ✓", true);
+    this.reset();
+  });
+
+  // Signup
+  document.getElementById("signupForm").addEventListener("submit", function(e){
+    e.preventDefault();
+    var name = document.getElementById("fullName").value.trim();
+    var email = document.getElementById("signupEmail").value.trim();
+    var pass = document.getElementById("signupPassword").value;
+    var out = document.getElementById("signupMsg");
+    if(!name || !email || !pass){ showMsg(out, "All fields are required", false); return; }
+    if(name.length < 3){ showMsg(out, "Name must be at least 3 chars", false); return; }
+    if(!isEmailValid(email)){ showMsg(out, "Invalid email", false); return; }
+    if(pass.length < 6){ showMsg(out, "Password must be at least 6 chars", false); return; }
+    showMsg(out, "Signup successful ✓", true);
+    this.reset();
+  });
+
+  // Contact
+  document.getElementById("contactForm").addEventListener("submit", function(e){
+    e.preventDefault();
+    var name = document.getElementById("contactName").value.trim();
+    var email = document.getElementById("contactEmail").value.trim();
+    var msg = document.getElementById("contactMsg").value.trim();
+    var out = document.getElementById("contactMsgBox");
+    if(!name || !email || !msg){ showMsg(out, "All fields are required", false); return; }
+    if(!isEmailValid(email)){ showMsg(out, "Invalid email", false); return; }
+    if(msg.length < 8){ showMsg(out, "Message must be at least 8 characters", false); return; }
+    showMsg(out, "Message sent ✓ We'll reach out soon", true);
+    this.reset();
+  });
+
+  // hook up buttons
+  document.getElementById("triggerBtn").addEventListener("click", function(){
+    triggerRandomChanges();
+  });
+  document.getElementById("randomDomBtn").addEventListener("click", function(){
+    randomDomMutate();
+  });
+  document.getElementById("resetBtn").addEventListener("click", function(){
+    resetUI();
+  });
+
+  // also allow clicking cart/table buttons to show temporary messages
+  document.body.addEventListener("click", function(ev){
+    var t = ev.target;
+    if(t.matches(".cartBtn")){
+      // quick visual feedback
+      var txt = t.innerText;
+      t.innerText = (txt.indexOf("✓") === -1 ? "Added ✓" : txt);
+      setTimeout(function(){ if(t.dataset.orig) t.innerText = t.dataset.orig; }, 1500);
+    }
+    if(t.matches(".tableBtn")){
+      t.disabled = true;
+      var orig = t.innerText; if(!t.dataset.orig) t.dataset.orig = orig;
+      t.innerText = "Processing...";
+      setTimeout(function(){ t.disabled = false; t.innerText = orig; }, 900);
+    }
+  });
+
+  // save snapshot again after DOM loaded
+  window.addEventListener("load", function(){ saveSnapshot(); });
+})();
+</script>
+</body>
+</html>

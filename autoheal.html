@@ -112,29 +112,6 @@
       width: 80%;
     }
 
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 10px;
-      border-radius: 10px;
-      overflow: hidden;
-    }
-
-    th, td {
-      padding: 12px;
-      border: 1px solid #ddd;
-      text-align: center;
-    }
-
-    th {
-      background-color: #1976d2;
-      color: white;
-    }
-
-    tr:nth-child(even) {
-      background-color: #f5f5f5;
-    }
-
     .profile-card {
       display: flex;
       align-items: center;
@@ -150,19 +127,11 @@
       height: 60px;
       border-radius: 50%;
     }
-
-    #logTableContainer {
-      max-height: 300px;
-      overflow-y: auto;
-      border: 1px solid #ddd;
-      border-radius: 10px;
-      margin-top: 15px;
-    }
   </style>
 </head>
 <body>
   <h1>Auto Heal AI Testing Playground</h1>
-  <p>Trigger random UI changes and test how well Auto Heal AI adapts to them.</p>
+  <p>Trigger random UI changes and test how well Auto Heal AI adapts.</p>
 
   <div class="container">
 
@@ -231,30 +200,16 @@
       </div>
     </section>
 
-    <!-- LOG TABLE -->
+    <!-- UI CONTROL BUTTONS -->
     <section>
-      <h2>UI Change Log</h2>
+      <h2>UI Controls</h2>
       <button id="changeBtn" onclick="randomChange()">Trigger Random Changes</button>
       <button id="resetBtn" class="btn-danger" onclick="resetUI()">Reset UI</button>
-
-<!--       <div id="logTableContainer">
-        <table>
-          <thead>
-            <tr>
-              <th>Element</th>
-              <th>Old Value</th>
-              <th>New Value</th>
-            </tr>
-          </thead>
-          <tbody id="changeLog">
-            <tr><td colspan="3">No changes yet</td></tr>
-          </tbody>
-        </table>
-      </div> -->
     </section>
   </div>
 
   <script>
+    // Elements to change dynamically
     const elements = [
       { id: "title-1", old: "Samsung Galaxy S24", new: "Samsung S25 Ultra" },
       { id: "title-2", old: "Apple iPhone 16", new: "Apple iPhone 17 Pro" },
@@ -268,7 +223,7 @@
       { id: "password", old: "placeholder=Enter your password", new: "placeholder=Passcode" }
     ];
 
-    // Button name mappings
+    // Main button name mappings
     const buttonNames = {
       loginBtn: { old: "Login", new: "Sign In Now" },
       signupBtn: { old: "Sign Up", new: "Create Account" },
@@ -276,6 +231,7 @@
       resetBtn: { old: "Reset UI", new: "Restore Original" }
     };
 
+    // Cart buttons mappings
     const cartButtonNames = [
       { old: "Add to Cart", new: "Buy Now" },
       { old: "Add to Cart", new: "Purchase" },
@@ -283,10 +239,6 @@
     ];
 
     function randomChange() {
-      const log = document.getElementById("changeLog");
-      log.innerHTML = "";
-
-      // Change text and placeholders
       elements.forEach(item => {
         const el = document.getElementById(item.id);
         if (el) {
@@ -295,31 +247,22 @@
           } else {
             el.innerText = item.new;
           }
-          log.innerHTML += `<tr><td>${item.id}</td><td>${item.old}</td><td>${item.new}</td></tr>`;
         }
       });
 
       // Change main button names
       Object.keys(buttonNames).forEach(id => {
         const btn = document.getElementById(id);
-        if (btn) {
-          btn.innerText = buttonNames[id].new;
-          log.innerHTML += `<tr><td>${id}</td><td>${buttonNames[id].old}</td><td>${buttonNames[id].new}</td></tr>`;
-        }
+        if (btn) btn.innerText = buttonNames[id].new;
       });
 
       // Change cart buttons dynamically
       document.querySelectorAll(".cart-btn").forEach((btn, index) => {
         btn.innerText = cartButtonNames[index].new;
-        log.innerHTML += `<tr><td>cart-btn-${index + 1}</td><td>${cartButtonNames[index].old}</td><td>${cartButtonNames[index].new}</td></tr>`;
       });
     }
 
     function resetUI() {
-      const log = document.getElementById("changeLog");
-      log.innerHTML = "";
-
-      // Reset elements to original
       elements.forEach(item => {
         const el = document.getElementById(item.id);
         if (el) {
@@ -341,8 +284,6 @@
       document.querySelectorAll(".cart-btn").forEach(btn => {
         btn.innerText = "Add to Cart";
       });
-
-      log.innerHTML = `<tr><td colspan="3">Reset to original state</td></tr>`;
     }
   </script>
 </body>

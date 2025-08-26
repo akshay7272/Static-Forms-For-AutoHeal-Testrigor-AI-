@@ -92,32 +92,6 @@
     button.reset:hover {
       background: #d32f2f;
     }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 20px;
-      background: white;
-      border-radius: 12px;
-      overflow: hidden;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    }
-
-    th, td {
-      border: 1px solid #ddd;
-      padding: 12px;
-      text-align: center;
-      font-size: 15px;
-    }
-
-    th {
-      background: #1e88e5;
-      color: white;
-    }
-
-    tr:nth-child(even) {
-      background-color: #f9f9f9;
-    }
   </style>
 </head>
 <body>
@@ -125,6 +99,7 @@
   <p>Change elements dynamically and retest to check Auto Heal AI recovery.</p>
 
   <div class="container">
+    <!-- Product Cards -->
     <div class="product-list" id="productList">
       <div class="card" id="card-1">
         <img src="https://picsum.photos/250/150?random=1" alt="Product" />
@@ -145,64 +120,61 @@
       </div>
     </div>
 
+    <!-- Buttons -->
     <div style="text-align: center;">
-      <button onclick="changeElements()">Change Elements</button>
-      <button class="reset" onclick="resetElements()">Reset Elements</button>
+      <button id="changeBtn" onclick="changeElements()">Trigger Random Changes</button>
+      <button id="resetBtn" class="reset" onclick="resetElements()">Reset UI</button>
     </div>
-
-<!--     <table>
-      <thead>
-        <tr>
-          <th>Element</th>
-          <th>Old Value</th>
-          <th>New Value</th>
-        </tr>
-      </thead>
-      <tbody id="changeLog">
-        <tr><td colspan="3">No changes yet</td></tr>
-      </tbody>
-    </table> -->
   </div>
 
   <script>
+    // Product Data to Simulate UI Changes
     const products = [
-      { id: "title-1", oldText: "Samsung Galaxy S24", newText: "Samsung Ultra S25" },
+      { id: "title-1", oldText: "Samsung Galaxy S24", newText: "Samsung S25 Ultra" },
       { id: "title-2", oldText: "Apple iPhone 16", newText: "Apple iPhone 17 Pro" },
       { id: "title-3", oldText: "OnePlus 13 Pro", newText: "OnePlus 14 Ultra" },
       { id: "price-1", oldText: "₹65,000", newText: "₹70,999" },
-      { id: "price-2", oldText: "₹1,25,000", newText: "₹1,35,999" },
-      { id: "price-3", oldText: "₹55,000", newText: "₹60,500" }
+      { id: "price-2", oldText: "₹1,25,000", newText: "₹1,39,999" },
+      { id: "price-3", oldText: "₹55,000", newText: "₹62,000" }
     ];
+
+    // Button Names Mapping
+    const buttonNames = {
+      changeBtn: { old: "Trigger Random Changes", new: "Adapt UI" },
+      resetBtn: { old: "Reset UI", new: "Restore Original" }
+    };
 
     let changed = false;
 
+    // Function to Change Elements Dynamically
     function changeElements() {
-      const log = document.getElementById("changeLog");
-      log.innerHTML = "";
-
-      products.forEach((item) => {
+      products.forEach(item => {
         const element = document.getElementById(item.id);
-        if (element) {
-          element.innerText = item.newText;
-          log.innerHTML += `<tr><td>${item.id}</td><td>${item.oldText}</td><td>${item.newText}</td></tr>`;
-        }
+        if (element) element.innerText = item.newText;
+      });
+
+      // Change Button Names Dynamically
+      Object.keys(buttonNames).forEach(id => {
+        const btn = document.getElementById(id);
+        if (btn) btn.innerText = buttonNames[id].new;
       });
 
       changed = true;
     }
 
+    // Function to Reset Back to Original UI
     function resetElements() {
-      const log = document.getElementById("changeLog");
-      log.innerHTML = "";
-
-      products.forEach((item) => {
+      products.forEach(item => {
         const element = document.getElementById(item.id);
-        if (element) {
-          element.innerText = item.oldText;
-        }
+        if (element) element.innerText = item.oldText;
       });
 
-      log.innerHTML = `<tr><td colspan="3">Reset to original state</td></tr>`;
+      // Reset Button Names
+      Object.keys(buttonNames).forEach(id => {
+        const btn = document.getElementById(id);
+        if (btn) btn.innerText = buttonNames[id].old;
+      });
+
       changed = false;
     }
   </script>

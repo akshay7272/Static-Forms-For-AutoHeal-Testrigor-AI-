@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Adaptive Demo Shop — UI Mutation Playground</title>
+  <style>
+    :root{
+      --bg:#0f1221;
+      --card:#171A2F;
+      --soft:#1E2342;
+      --text:#E9ECF1;
+      --muted:#B7C0D1;
+      --brand:#6C8CFF;
+      --brand-2:#61D095;
+      --accent:#FFB454;
+      --danger:#FF6B6B;
+      --ok:#49D27C;
+      --border: rgba(255,255,255,0.08);
+      --radius:14px;
+      --shadow: 0 10px 30px rgba(0,0,0,0.35);
+      --font: ui-sans-serif, -apple-system, Segoe UI, Roboto, Inter, "Helvetica Neue", Arial;
+    }
+    .theme-alt{
+      --bg:#0F0F10;
+      --card:#1A1B1E;
+      --soft:#222429;
+      --text:#F2F2F3;
+      --muted:#C8CBD1;
+      --brand:#FF7FD6;
+      --brand-2:#73E3FF;
+      --accent:#FFD166;
+      --danger:#FF5C7A;
+      --ok:#5CFFB2;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      background: radial-gradient(1200px 600px at 20% 0%, #131737 0%, var(--bg) 55%) fixed,
+                  linear-gradient(180deg, rgba(255,255,255,0.02), transparent 30%) fixed;
+      color:var(--text);
+      font-family:var(--font);
+      line-height:1.45;
+    }
+    a{color:var(--brand);text-decoration:none}
+    a:hover{text-decoration:underline}
+
+    /* Layout */
+    header{
+      position:sticky; top:0; z-index:30;
+      backdrop-filter: blur(10px);
+      background: rgba(10,12,24,0.6);
+      border-bottom:1px solid var(--border);
+    }
+    .nav{
+      display:flex; align-items:center; justify-content:space-between;
+      gap:12px; padding:14px clamp(14px, 3vw, 24px);
+      max-width:1200px; margin-inline:auto;
+    }
+    .brand{
+      display:flex; align-items:center; gap:12px; font-weight:700; letter-spacing:0.3px;
+    }
+    .brand-logo{
+      width:34px; height:34px; border-radius:10px;
+      background: conic-gradient(from 190deg at 50% 50%, var(--brand), var(--brand-2), var(--accent), var(--brand));
+      box-shadow: inset 0 0 0 2px rgba(255,255,255,0.1), 0 8px 18px rgba(0,0,0,0.35);
+    }
+    .nav-actions{display:flex; gap:10px; flex-wrap:wrap}
+    .btn{
+      appearance:none; border:none; cursor:pointer;
+      padding:10px 14px; border-radius:10px; color:var(--text);
+      background:linear-gradient(180deg, var(--soft), #13162A);
+      border:1px solid var(--border);
+      box-shadow: 0 6px 14px rgba(0,0,0,0.25);
+      transition: transform .12s ease, background .2s ease, box-shadow .2s ease;
+      font-weight:600;
+    }
+    .btn:hover{ transform: translateY(-1px); }
+    .btn:active{ transform: translateY(0); }
+    .btn-primary{ background: linear-gradient(180deg, var(--brand), #476CFF); color:white; border-color: rgba(255,255,255,0.15);}
+    .btn-ghost{ background:transparent; border:1px dashed var(--border); }
+    .btn-danger{ background: linear-gradient(180deg, var(--danger), #D34C4C); }
+
+    main{ max-width:1200px; padding: clamp(16px, 3vw, 28px); margin-inline:auto; }
+    .grid{
+      display:grid; gap:18px;
+      grid-template-columns: 1.2fr 1fr;
+    }
+    @media (max-width: 1000px){
+      .grid{ grid-template-columns: 1fr; }
+    }
+
+    /* Cards & sections */
+    .card{
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), transparent 40%) , var(--card);
+      border:1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+    .card-header{
+      padding:14px 16px; display:flex; align-items:center; justify-content:space-between; gap:10px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.04), transparent);
+      border-bottom:1px solid var(--border);
+    }
+    .card-title{ font-size:16px; font-weight:800; letter-spacing:0.3px;}
+    .card-body{ padding:16px; }
+
+    /* Forms */
+    .form-grid{ display:grid; gap:14px; grid-template-columns: repeat(2, 1fr); }
+    .form-row{ display:flex; flex-direction:column; gap:8px; }
+    label{ color:var(--muted); font-size:13px; }
+    input, select, textarea{
+      width:100%; background: linear-gradient(180deg, #101427, #0B0E1C);
+      color:var(--text); padding:12px 12px; border-radius:10px;
+      border:1px solid var(--border); outline:none;
+      transition: border .2s ease, box-shadow .2s ease;
+    }
+    input::placeholder, textarea::placeholder{ color:#94A0B8 }
+    input:focus, select:focus, textarea:focus{
+      border-color: color-mix(in oklab, var(--brand) 60%, white 15%);
+      box-shadow: 0 0 0 3px rgba(108,140,255,0.18);
+    }
+    .hint{ color:#97A4C1; font-size:12px; }
+    .row-2{ grid-column: span 2; }
+    .inline{
+      display:flex; gap:12px; flex-wrap:wrap; align-items:center;
+    }
+    .chip{
+      background: linear-gradient(180deg, var(--soft), #14182C);
+      border:1px solid var(--border); padding:6px 10px; border-radius:999px; font-size:12px;
+    }
+    .checkline{
+      display:flex; align-items:center; gap:10px;
+    }
+    .checkline input[type="checkbox"], .checkline input[type="radio"]{
+      transform: translateY(1px);
+    }
+
+    /* Product area */
+    .toolbar{ display:flex; gap:12px; flex-wrap:wrap; align-items:center; margin-bottom:12px; }
+    .products{
+      display:grid; gap:14px; grid-template-columns: repeat(3, 1fr);
+    }
+    @media (max-width: 1000px){
+      .products{ grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 640px){
+      .form-grid{ grid-template-columns: 1fr; }
+      .products{ grid-template-columns: 1fr; }
+      .row-2{ grid-column: auto; }
+    }
+    .product{
+      display:flex; flex-direction:column; gap:10px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), transparent 50%), #14172C;
+      border:1px solid var(--border); border-radius:14px; padding:12px;
+    }
+    .product .image{
+      aspect-ratio: 16 / 10; border-radius:10px; overflow:hidden; position:relative;
+      background: radial-gradient(120px 80px at 30% 30%, rgba(255,255,255,0.08), transparent 60%),
+                  linear-gradient(135deg, rgba(108,140,255,0.25), transparent 40%),
+                  linear-gradient(180deg, #121426, #0A0C1A);
+      border:1px solid var(--border);
+    }
+    .badge{
+      position:absolute; top:8px; left:8px; font-size:11px; padding:4px 8px;
+      border-radius:999px; background: linear-gradient(180deg, var(--accent), #D79A38); color:#1B1320;
+      font-weight:800; letter-spacing:0.3px;
+    }
+    .product .title{ font-weight:700; }
+    .price-line{ display:flex; justify-content:space-between; align-items:center; gap:8px; }
+    .stars{ color:#FFD166; font-size:14px; letter-spacing:1px; }
+    .qty-row{ display:flex; gap:8px; align-items:center; }
+    .qty-row select{ width:84px; }
+
+    /* Cart */
+    .cart{
+      display:flex; flex-direction:column; gap:10px;
+    }
+    .cart-item{
+      display:grid; grid-template-columns: 1fr auto auto auto; gap:10px; align-items:center;
+      padding:10px; background: linear-gradient(180deg, rgba(255,255,255,0.02), transparent 50%), #121528;
+      border:1px solid var(--border); border-radius:12px;
+    }
+    .cart-item .name{ font-weight:700; }
+    .sum-line{ display:flex; justify-content:space-between; gap:10px; padding-top:6px; border-top:1px dashed var(--border); color:var(--muted);}
+    .total{ font-size:18px; font-weight:900; color:var(--text); }
+    .empty{ color:var(--muted); }
+
+    /* Tabs and FAQ */
+    .tabs{ display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap; }
+    .tab{ padding:8px 12px; border-radius:999px; background: linear-gradient(180deg, var(--soft), #14182C); border:1px solid var(--border); cursor:pointer; font-weight:700;}
+    .tab[aria-selected="true"]{ background: linear-gradient(180deg, var(--brand), #476CFF); color:white; border-color:transparent; }
+
+    details{
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), transparent 50%), #121528;
+      border:1px solid var(--border); border-radius:12px; padding:10px 12px;
+    }
+    summary{ cursor:pointer; font-weight:700; }
+
+    /* Toasts */
+    .toasts{ position:fixed; right:16px; bottom:16px; display:flex; flex-direction:column; gap:10px; z-index:50; }
+    .toast{
+      background: linear-gradient(180deg, #1D2038, #111427);
+      border:1px solid var(--border); color:var(--text); padding:10px 12px; border-radius:12px;
+      box-shadow: var(--shadow);
+    }
+
+    /* Modal */
+    .modal-backdrop{
+      position:fixed; inset:0; background: rgba(0,0,0,0.5);
+      display:none; align-items:center; justify-content:center; z-index:60;
+    }
+    .modal{
+      width:min(520px, 92vw);
+      background: var(--card); border:1px solid var(--border); border-radius:16px; overflow:hidden; box-shadow: var(--shadow);
+    }
+
+    /* Footer */
+    footer{
+      margin-top:26px; padding:18px; text-align:center; color:var(--muted);
+    }
+
+    /* Helper for mutation wrapper */
+    .btn-shell{ display:inline-flex; padding:4px; border-radius:12px; background:linear-gradient(180deg, rgba(255,255,255,0.04), transparent); border:1px dashed var(--border); }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="nav">
+      <div class="brand">
+        <div class="brand-logo" aria-hidden="true"></div>
+        <div class="brand-name" data-key="brand">Adaptive Demo Shop</div>
+      </div>
+      <div class="nav-actions">
+        <button id="btn-toggle-theme" class="btn btn-ghost" title="Toggle theme" data-key="themeToggle">Switch Theme</button>
+        <button id="btn-mutate" class="btn btn-primary" title="Mutate UI texts & structure" data-key="mutate">Change UI</button>
+        <button id="btn-reset" class="btn" title="Reset UI to original" data-key="reset">Reset UI</button>
+        <button id="btn-open-cart" class="btn" data-key="cart">Cart (0)</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="card">
+      <div class="card-header">
+        <div class="card-title" data-key="welcome">Welcome to your adaptive playground</div>
+        <div class="inline">
+          <span class="chip">Responsive</span>
+          <span class="chip">Accessible</span>
+          <span class="chip">Auto-heal test ready</span>
+        </div>
+      </div>
+      <div class="card-body">
+        <p data-key="welcomeSub">Click “Change UI” to cycle labels, placeholders, some IDs/names, and wrap buttons to simulate real-world UI drifts.</p>
+      </div>
+    </section>
+
+    <div class="grid" style="margin-top:18px;">
+      <section class="card">
+        <div class="card-header">
+          <div class="card-title" data-key="forms">Forms galore</div>
+          <div class="tabs" role="tablist" aria-label="Form tabs">
+            <button class="tab" role="tab" aria-selected="true" data-tab="login" data-key="signin">Sign In</button>
+            <button class="tab" role="tab" aria-selected="false" data-tab="register" data-key="signup">Sign Up</button>
+            <button class="tab" role="tab" aria-selected="false" data-tab="contact" data-key="contact">Contact</button>
+            <button class="tab" role="tab" aria-selected="false" data-tab="payment" data-key="payment">Payment</button>
+          </div>
+        </div>
+        <div class="card-body">
+          <!-- Login form -->
+          <form id="form-login" class="form-grid form-panel" data-panel="login" data-rename="true" autocomplete="on">
+            <div class="form-row row-2">
+              <div class="hint">Supports radios, checkboxes, remember me, etc.</div>
+            </div>
+            <div class="form-row">
+              <label for="login-email" data-key="emailLabel">Email</label>
+              <input id="login-email" name="email" type="email" placeholder="you@example.com" required
+                     data-key="email" data-rename="true" aria-label="Email" />
+            </div>
+            <div class="form-row">
+              <label for="login-password" data-key="passwordLabel">Password</label>
+              <input id="login-password" name="password" type="password" placeholder="Enter password" required
+                     data-key="password" data-rename="true" aria-label="Password" />
+            </div>
+            <div class="form-row">
+              <div class="checkline">
+                <input id="remember" type="checkbox" name="remember" />
+                <label for="remember" data-key="remember">Remember me</label>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="inline">
+                <div class="checkline">
+                  <input type="radio" id="user" name="role" value="user" checked />
+                  <label for="user" data-key="roleUser">User</label>
+                </div>
+                <div class="checkline">
+                  <input type="radio" id="admin" name="role" value="admin" />
+                  <label for="admin" data-key="roleAdmin">Admin</label>
+                </div>
+              </div>
+            </div>
+            <div class="form-row row-2 inline">
+              <button type="submit" class="btn btn-primary" data-key="signinBtn" data-rename="true">Sign In</button>
+              <button type="button" class="btn" id="btn-social" data-key="socialLogin">Continue with Social</button>
+              <button type="reset" class="btn btn-ghost" data-key="clear">Clear</button>
+            </div>
+          </form>
+
+          <!-- Register form -->
+          <form id="form-register" class="form-grid form-panel" data-panel="register" hidden autocomplete="off">
+            <div class="form-row">
+              <label for="full-name" data-key="fullNameLabel">Full name</label>
+              <input id="full-name" name="full_name" type="text" placeholder="Your full name" data-key="fullName" />
+            </div>
+            <div class="form-row">
+              <label for="reg-email" data-key="emailLabel">Email</label>
+              <input id="reg-email" name="email" type="email" placeholder="you@example.com" data-key="email" />
+            </div>
+            <div class="form-row">
+              <label for="reg-pass" data-key="passwordLabel">Password</label>
+              <input id="reg-pass" name="password" type="password" placeholder="Create a password" data-key="password" />
+            </div>
+            <div class="form-row">
+              <label for="reg-pass2" data-key="confirmPasswordLabel">Confirm password</label>
+              <input id="reg-pass2" name="confirm" type="password" placeholder="Re-enter password" data-key="confirmPassword" />
+            </div>
+            <div class="form-row">
+              <label data-key="gender">Gender</label>
+              <div class="inline">
+                <div class="checkline">
+                  <input type="radio" id="g-m" name="gender" value="male" />
+                  <label for="g-m" data-key="male">Male</label>
+                </div>
+                <div class="checkline">
+                  <input type="radio" id="g-f" name="gender" value="female" />
+                  <label for="g-f" data-key="female">Female</label>
+                </div>
+                <div class="checkline">
+                  <input type="radio" id="g-o" name="gender" value="other" />
+                  <label for="g-o" data-key="other">Other</label>
+                </div>
+              </div>
+            </div>
+            <div class="form-row row-2">
+              <label data-key="interests">Interests</label>
+              <div class="inline">
+                <label class="chip"><input type="checkbox" name="interests" value="tech" /> Tech</label>
+                <label class="chip"><input type="checkbox" name="interests" value="music" /> Music</label>
+                <label class="chip"><input type="checkbox" name="interests" value="travel" /> Travel</label>
+                <label class="chip"><input type="checkbox" name="interests" value="books" /> Books</label>
+              </div>
+            </div>
+            <div class="form-row">
+              <label for="country" data-key="country">Country</label>
+              <select id="country" name="country">
+                <option>India</option>
+                <option>United States</option>
+                <option>Germany</option>
+                <option>Japan</option>
+              </select>
+            </div>
+            <div class="form-row">
+              <label for="tz" data-key="timezone">Timezone</label>
+              <select id="tz" name="tz">
+                <option>IST (UTC+5:30)</option>
+                <option>PST (UTC-8)</option>
+                <option>CET (UTC+1)</option>
+                <option>JST (UTC+9)</option>
+              </select>
+            </div>
+            <div class="form-row row-2">
+              <div class="checkline">
+                <input id="terms" type="checkbox" />
+                <label for="terms" data-key="acceptTerms">I agree to the Terms</label>
+              </div>
+            </div>
+            <div class="form-row row-2 inline">
+              <button type="submit" class="btn btn-primary" data-key="createAccount">Create account</button>
+              <button type="reset" class="btn btn-ghost" data-key="clear">Clear</button>
+            </div>
+          </form>
+
+          <!-- Contact form -->
+          <form id="form-contact" class="form-grid form-panel" data-panel="contact" hidden>
+            <div class="form-row">
+              <label for="subject" data-key="subjectLabel">Subject</label>
+              <select id="subject" name="subject">
+                <option>General question</option>
+                <option>Order update</option>
+                <option>Refund request</option>
+              </select>
+            </div>
+            <div class="form-row">
+              <label for="prio" data-key="priority">Priority</label>
+              <div class="inline">
+                <label class="chip"><input type="radio" name="priority" value="low" checked /> Low</label>
+                <label class="chip"><input type="radio" name="priority" value="medium" /> Medium</label>
+                <label class="chip"><input type="radio" name="priority" value="high" /> High</label>
+              </div>
+            </div>
+            <div class="form-row row-2">
+              <label for="msg" data-key="message">Message</label>
+              <textarea id="msg" rows="4" placeholder="Type your message..."></textarea>
+            </div>
+            <div class="form-row row-2 inline">
+              <label class="btn">
+                <input type="file" hidden /> <span data-key="attach">Attach file</span>
+              </label>
+              <button type="submit" class="btn btn-primary" data-key="send">Send</button>
+            </div>
+          </form>
+
+          <!-- Payment form -->
+          <form id="form-payment" class="form-grid form-panel" data-panel="payment" hidden>
+            <div class="form-row">
+              <label for="card-name" data-key="cardName">Name on card</label>
+              <input id="card-name" type="text" placeholder="Name as on card" />
+            </div>
+            <div class="form-row">
+              <label for="card-number" data-key="cardNumber">Card number</label>
+              <input id="card-number" type="text" inputmode="numeric" placeholder="1234 5678 9012 3456" />
+            </div>
+            <div class="form-row">
+              <label for="exp" data-key="expiry">Expiry</label>
+              <input id="exp" type="text" placeholder="MM/YY" />
+            </div>
+            <div class="form-row">
+              <label for="cvv" data-key="cvv">CVV</label>
+              <input id="cvv" type="password" placeholder="***" />
+            </div>
+            <div class="form-row row-2">
+              <div class="checkline">
+                <input id="save-card" type="checkbox" />
+                <label for="save-card" data-key="saveCard">Save card for later</label>
+              </div>
+            </div>
+            <div class="form-row row-2 inline">
+              <button type="submit" class="btn btn-primary" data-key="payNow">Pay now</button>
+              <button type="button" class="btn btn-ghost" data-key="useUPI">Try UPI</button>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-header">
+          <div class="card-title" data-key="catalog">Product catalog</div>
+          <div class="toolbar">
+            <input id="search" type="search" placeholder="Search products..." data-key="search" />
+            <select id="sort">
+              <option value="popular">Sort: Popular</option>
+              <option value="price-asc">Sort: Price ↑</option>
+              <option value="price-desc">Sort: Price ↓</option>
+            </select>
+            <div class="inline">
+              <label class="chip"><input type="checkbox" name="category" value="electronics" checked /> Electronics</label>
+              <label class="chip"><input type="checkbox" name="category" value="home" /> Home</label>
+              <label class="chip"><input type="checkbox" name="category" value="fitness" /> Fitness</label>
+            </div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div id="product-list" class="products"></div>
+          <div class="sum-line" style="margin-top:12px;">
+            <div class="hint">Showing <span id="visible-count">0</span> items</div>
+            <div class="inline">
+              <button class="btn" id="prev-page">Prev</button>
+              <button class="btn" id="next-page">Next</button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <section class="card" style="margin-top:18px;">
+      <div class="card-header">
+        <div class="card-title" data-key="moreFeatures">More features</div>
+      </div>
+      <div class="card-body">
+        <div class="form-grid">
+          <div class="row-2">
+            <details>
+              <summary data-key="faq1">How does UI mutation work?</summary>
+              <p class="hint">We cycle through synonym sets, update labels/placeholders, tweak some IDs/names, and wrap buttons to change DOM paths.</p>
+            </details>
+          </div>
+          <div>
+            <h4 style="margin:0 0 8px;" data-key="orderedList">Ordered list</h4>
+            <ol>
+              <li>Search</li>
+              <li>Filter</li>
+              <li>Select</li>
+              <li>Add to cart</li>
+              <li>Checkout</li>
+            </ol>
+          </div>
+          <div>
+            <h4 style="margin:0 0 8px;" data-key="unorderedList">Unordered list</h4>
+            <ul>
+              <li>Responsive grid</li>
+              <li>Accessible forms</li>
+              <li>Toast notifications</li>
+              <li>Modal checkout</li>
+            </ul>
+          </div>
+          <div class="row-2">
+            <form id="newsletter" class="inline">
+              <input type="email" placeholder="Enter email for updates" data-key="newsletterPH" />
+              <select>
+                <option>Weekly</option>
+                <option>Monthly</option>
+                <option>Quarterly</option>
+              </select>
+              <button class="btn btn-primary" type="submit" data-key="subscribe">Subscribe</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Cart panel -->
+    <section class="card" style="margin-top:18px;">
+      <div class="card-header">
+        <div class="card-title" data-key="cartTitle">Your cart</div>
+        <div class="inline">
+          <button class="btn btn-danger" id="btn-empty" data-key="emptyCart">Empty cart</button>
+          <button class="btn btn-primary" id="btn-checkout" data-key="checkout">Checkout</button>
+        </div>
+      </div>
+      <div class="card-body">
+        <div id="cart" class="cart">
+          <div class="empty" data-key="cartEmpty">Your cart is empty.</div>
+        </div>
+        <div class="sum-line">
+          <div>Subtotal</div><div id="subtotal">₹0.00</div>
+        </div>
+        <div class="sum-line">
+          <div>Tax</div><div id="tax">₹0.00</div>
+        </div>
+        <div class="sum-line total">
+          <div>Total</div><div id="total">₹0.00</div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    Built for UI drift and selector auto-heal testing. Try “Change UI” more than once to see progressive variations.
+  </footer>
+
+  <!-- Toasts -->
+  <div class="toasts" id="toasts" aria-live="polite" aria-atomic="true"></div>
+
+  <!-- Modal -->
+  <div class="modal-backdrop" id="modal">
+    <div class="modal">
+      <div class="card-header">
+        <div class="card-title" data-key="confirmPurchase">Confirm purchase</div>
+        <button class="btn btn-ghost" id="close-modal" aria-label="Close">✕</button>
+      </div>
+      <div class="card-body">
+        <p class="hint" data-key="modalHint">Review your order and proceed to secure checkout.</p>
+        <div id="modal-items" class="cart" style="margin-top:10px;"></div>
+        <div class="sum-line total" style="margin-top:12px;">
+          <div>Total</div><div id="modal-total">₹0.00</div>
+        </div>
+        <div class="inline" style="margin-top:12px;">
+          <button class="btn btn-primary" id="confirm-order" data-key="confirmOrder">Place order</button>
+          <button class="btn" id="cancel-order" data-key="cancel">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ---------- Demo data ----------
+    const PRODUCTS = [
+      {id:'p1', name:'Noise-Cancelling Headphones', price:6999, category:'electronics', rating:4.6, tag:'Hot'},
+      {id:'p2', name:'Smart LED Bulb', price:899, category:'home', rating:4.3, tag:'New'},
+      {id:'p3', name:'Fitness Smartwatch', price:4999, category:'fitness', rating:4.5, tag:'Deal'},
+      {id:'p4', name:'Mechanical Keyboard', price:3499, category:'electronics', rating:4.7, tag:'Hot'},
+      {id:'p5', name:'Air Purifier', price:8999, category:'home', rating:4.2, tag:'New'},
+      {id:'p6', name:'Adjustable Dumbbells', price:5999, category:'fitness', rating:4.4, tag:'Deal'},
+      {id:'p7', name:'Bluetooth Speaker', price:1999, category:'electronics', rating:4.1, tag:'Hot'},
+      {id:'p8', name:'Espresso Maker', price:7499, category:'home', rating:4.0, tag:'New'},
+      {id:'p9', name:'Yoga Mat Pro', price:1299, category:'fitness', rating:4.6, tag:'Deal'}
+    ];
+
+    // ---------- State ----------
+    const state = {
+      cart: [],
+      sort: 'popular',
+      search: '',
+      categories: new Set(['electronics','home','fitness']),
+      page: 1,
+      pageSize: 6,
+      mutationIndex: 0,
+      originalSnapshots: new Map(), // element -> {text, placeholder, id, name}
+      wrapped: false
+    };
+
+    // ---------- Utilities ----------
+    const fmt = n => '₹' + n.toFixed(2);
+    const qs = (sel, root=document) => root.querySelector(sel);
+    const qsa = (sel, root=document) => Array.from(root.querySelectorAll(sel));
+
+    function toast(msg){
+      const t = document.createElement('div');
+      t.className = 'toast';
+      t.textContent = msg;
+      qs('#toasts').appendChild(t);
+      setTimeout(()=>{ t.style.opacity='0'; t.style.transform='translateY(8px)'; }, 2600);
+      setTimeout(()=> t.remove(), 3100);
+    }
+
+    // ---------- Rendering: Products ----------
+    function renderProducts(){
+      const list = qs('#product-list');
+      list.innerHTML = '';
+      let items = PRODUCTS
+        .filter(p => state.categories.has(p.category))
+        .filter(p => p.name.toLowerCase().includes(state.search.toLowerCase()));
+
+      if (state.sort === 'price-asc') items.sort((a,b)=>a.price-b.price);
+      if (state.sort === 'price-desc') items.sort((a,b)=>b.price-a.price);
+
+      const start = (state.page-1)*state.pageSize;
+      const pageItems = items.slice(start, start+state.pageSize);
+      qs('#visible-count').textContent = String(pageItems.length);
+
+      for (const p of pageItems){
+        const card = document.createElement('div');
+        card.className = 'product';
+        card.dataset.productId = p.id;
+
+        const img = document.createElement('div');
+        img.className = 'image';
+        const badge = document.createElement('div');
+        badge.className = 'badge';
+        badge.textContent = p.tag;
+        img.appendChild(badge);
+
+        const title = document.createElement('div');
+        title.className = 'title';
+        title.textContent = p.name;
+
+        const price = document.createElement('div');
+        price.className = 'price-line';
+        price.innerHTML = `<div class="stars" title="Rating">${'★'.repeat(Math.round(p.rating))}${'☆'.repeat(5-Math.round(p.rating))}</div>
+                           <div><strong>${fmt(p.price)}</strong></div>`;
+
+        const qtyRow = document.createElement('div');
+        qtyRow.className = 'qty-row';
+        const qtyLabel = document.createElement('label');
+        qtyLabel.textContent = variantFor('quantity', state.mutationIndex) || 'Qty';
+        const qty = document.createElement('select');
+        for (let i=1;i<=5;i++){ const o=document.createElement('option'); o.value=i; o.textContent=i; qty.appendChild(o); }
+        qtyRow.append(qtyLabel, qty);
+
+        const btn = document.createElement('button');
+        btn.className = 'btn btn-primary btn-add';
+        btn.dataset.key = 'addToCart';
+        btn.textContent = variantFor('addToCart', state.mutationIndex) || 'Add to cart';
+        btn.addEventListener('click', () => addToCart(p, Number(qty.value || 1)));
+
+        card.append(img, title, price, qtyRow, btn);
+        list.appendChild(card);
+      }
+    }
+
+    // ---------- Cart ----------
+    function addToCart(product, qty=1){
+      const existing = state.cart.find(i => i.id===product.id);
+      if (existing) existing.qty += qty;
+      else state.cart.push({ id:product.id, name:product.name, price:product.price, qty });
+      updateCartUI();
+      toast(`${product.name} ×${qty} ${variantFor('added', state.mutationIndex) || 'added to cart'}`);
+    }
+    function removeFromCart(id){
+      state.cart = state.cart.filter(i=>i.id!==id);
+      updateCartUI();
+    }
+    function updateCartUI(){
+      const el = qs('#cart');
+      el.innerHTML = '';
+      if (!state.cart.length){
+        const empty = document.createElement('div');
+        empty.className = 'empty';
+        empty.dataset.key = 'cartEmpty';
+        empty.textContent = variantFor('cartEmpty', state.mutationIndex) || 'Your cart is empty.';
+        el.appendChild(empty);
+      } else {
+        for (const item of state.cart){
+          const row = document.createElement('div');
+          row.className = 'cart-item';
+          row.innerHTML = `
+            <div class="name">${item.name}</div>
+            <div>${fmt(item.price)}</div>
+            <div>
+              <input type="number" min="1" value="${item.qty}" style="width:70px" aria-label="Quantity" />
+            </div>
+            <div class="inline">
+              <button class="btn btn-ghost btn-remove" data-id="${item.id}" title="Remove">🗑</button>
+            </div>
+          `;
+          row.querySelector('input').addEventListener('change', (e)=>{
+            item.qty = Math.max(1, Number(e.target.value||1)); updateCartUI();
+          });
+          row.querySelector('.btn-remove').addEventListener('click', ()=>{
+            removeFromCart(item.id);
+          });
+          el.appendChild(row);
+        }
+      }
+      const sub = state.cart.reduce((s,i)=>s+i.price*i.qty,0);
+      const tax = sub*0.18;
+      const total = sub+tax;
+      qs('#subtotal').textContent = fmt(sub);
+      qs('#tax').textContent = fmt(tax);
+      qs('#total').textContent = fmt(total);
+      qs('#btn-open-cart').textContent = `${variantFor('cart', state.mutationIndex) || 'Cart'} (${state.cart.reduce((s,i)=>s+i.qty,0)})`;
+    }
+
+    // ---------- Tabs ----------
+    qsa('.tab').forEach(t=>{
+      t.addEventListener('click', ()=>{
+        qsa('.tab').forEach(x=>x.setAttribute('aria-selected','false'));
+        t.setAttribute('aria-selected','true');
+        const id = t.dataset.tab;
+        qsa('.form-panel').forEach(p => p.hidden = p.dataset.panel !== id);
+      });
+    });
+
+    // ---------- Filters & pagination ----------
+    qs('#search').addEventListener('input', e=>{ state.search = e.target.value; state.page=1; renderProducts(); });
+    qs('#sort').addEventListener('change', e=>{ state.sort = e.target.value; renderProducts(); });
+    qsa('input[name="category"]').forEach(c=>{
+      c.addEventListener('change', ()=>{
+        if (c.checked) state.categories.add(c.value); else state.categories.delete(c.value);
+        state.page=1; renderProducts();
+      });
+    });
+    qs('#prev-page').addEventListener('click', ()=>{ state.page=Math.max(1, state.page-1); renderProducts(); });
+    qs('#next-page').addEventListener('click', ()=>{ state.page=state.page+1; renderProducts(); });
+
+    // ---------- Modal ----------
+    function openModal(){
+      const m = qs('#modal');
+      m.style.display = 'flex';
+      const list = qs('#modal-items');
+      list.innerHTML = '';
+      for (const i of state.cart){
+        const row = document.createElement('div');
+        row.className='cart-item';
+        row.innerHTML = `<div class="name">${i.name}</div><div>${fmt(i.price)}</div><div>×${i.qty}</div><div>${fmt(i.price*i.qty)}</div>`;
+        list.appendChild(row);
+      }
+      const total = state.cart.reduce((s,i)=>s+i.price*i.qty,0)*1.18;
+      qs('#modal-total').textContent = fmt(total);
+    }
+    function closeModal(){ qs('#modal').style.display='none'; }
+    qs('#btn-open-cart').addEventListener('click', openModal);
+    qs('#btn-checkout').addEventListener('click', openModal);
+    qs('#close-modal').addEventListener('click', closeModal);
+    qs('#cancel-order').addEventListener('click', closeModal);
+    qs('#confirm-order').addEventListener('click', ()=>{
+      toast(variantFor('orderPlaced', state.mutationIndex) || 'Order placed successfully!');
+      state.cart = []; updateCartUI(); closeModal();
+    });
+    qs('#btn-empty').addEventListener('click', ()=>{
+      state.cart = []; updateCartUI(); toast(variantFor('emptied', state.mutationIndex) || 'Cart emptied');
+    });
+
+    // ---------- Theme ----------
+    qs('#btn-toggle-theme').addEventListener('click', ()=>{
+      document.body.classList.toggle('theme-alt');
+    });
+
+    // ---------- Forms submit handlers ----------
+    ['form-login','form-register','form-contact','form-payment','newsletter'].forEach(id=>{
+      const f = qs('#'+id);
+      if (!f) return;
+      f.addEventListener('submit', e=>{
+        e.preventDefault();
+        toast(variantFor('formSubmitted', state.mutationIndex) || 'Form submitted');
+      });
+    });
+
+    // ---------- UI Mutation Engine ----------
+    const variants = {
+      brand: ['Adaptive Demo Shop','Auto-Heal Test Store','Resilient UI Lab','Selector Sandbox'],
+      themeToggle: ['Switch Theme','Toggle Look','Flip Skin','Change Theme'],
+      mutate: ['Change UI','Morph UI','Rename Components','Shuffle Labels'],
+      reset: ['Reset UI','Restore Original','Revert Changes','Go Back'],
+      welcome: ['Welcome to your adaptive playground','Explore resilient UI behavior','Drift-ready test surface','Label & DOM mutation arena'],
+      welcomeSub: ['Click “Change UI” to cycle labels, placeholders, some IDs, and button wrappers.','Hit “Morph UI” to trigger renames and structural tweaks.','Use “Rename Components” to simulate drift.'],
+      forms: ['Forms galore','Form universe','Input playground','All the forms'],
+      signin: ['Sign In','Log In','Access','Enter'],
+      signup: ['Sign Up','Create Account','Register','Join'],
+      contact: ['Contact','Reach Us','Get Support','Help'],
+      payment: ['Payment','Pay','Billing','Checkout Info'],
+      emailLabel: ['Email','E-mail','Mail ID','Email Address'],
+      passwordLabel: ['Password','Passcode','Secret','Key'],
+      confirmPasswordLabel: ['Confirm password','Re-enter passcode','Repeat secret','Verify password'],
+      fullNameLabel: ['Full name','Your name','Complete name','Name'],
+      gender: ['Gender','Identify as','Sex','Profile gender'],
+      male: ['Male','Man','He/Him','M'],
+      female: ['Female','Woman','She/Her','F'],
+      other: ['Other','Non-binary','They/Them','X'],
+      interests: ['Interests','Hobbies','Preferences','Focus areas'],
+      country: ['Country','Nation','Region','Locale'],
+      timezone: ['Timezone','Time zone','Region time','Local time offset'],
+      acceptTerms: ['I agree to the Terms','I accept terms & conditions','Agree to policy','Consent to terms'],
+      createAccount: ['Create account','Sign me up','Register now','Create profile'],
+      subjectLabel: ['Subject','Topic','Regarding','About'],
+      priority: ['Priority','Urgency','Importance','Level'],
+      message: ['Message','Your note','Content','Text'],
+      attach: ['Attach file','Add attachment','Upload','Include file'],
+      send: ['Send','Dispatch','Submit','Deliver'],
+      cardName: ['Name on card','Cardholder name','On-card name','Holder name'],
+      cardNumber: ['Card number','Card no.','PAN','Card digits'],
+      expiry: ['Expiry','Valid thru','Expires','Exp.'],
+      cvv: ['CVV','CVC','Security code','Code'],
+      saveCard: ['Save card for later','Remember this card','Store card','Keep card'],
+      payNow: ['Pay now','Make payment','Pay','Complete payment'],
+      useUPI: ['Try UPI','Use UPI','Pay via UPI','UPI option'],
+      catalog: ['Product catalog','Storefront','Items list','Shop products'],
+      search: ['Search products...','Find items...','Look up...','Type to search...'],
+      quantity: ['Qty','Quantity','Count','Units'],
+      addToCart: ['Add to cart','Add to basket','Put in cart','Buy'],
+      added: ['added to cart','added to basket','queued in cart','moved to bag'],
+      cart: ['Cart','Bag','Basket','Trolley'],
+      cartTitle: ['Your cart','Shopping cart','Your basket','Your bag'],
+      cartEmpty: ['Your cart is empty.','No items yet.','Basket is empty.','Nothing here.'],
+      emptyCart: ['Empty cart','Clear basket','Wipe cart','Remove all'],
+      checkout: ['Checkout','Proceed','Go to checkout','Pay now'],
+      confirmPurchase: ['Confirm purchase','Order summary','Finalize order','Review & pay'],
+      modalHint: ['Review your order and proceed to secure checkout.','Verify and confirm your items.','Almost done—complete your order.','Check details before paying.'],
+      confirmOrder: ['Place order','Confirm purchase','Buy now','Complete order'],
+      cancel: ['Cancel','Abort','Back','Close'],
+      orderPlaced: ['Order placed successfully!','Purchase confirmed!','Success—your order is in!','Done!'],
+      emptied: ['Cart emptied','Basket cleared','All items removed','Cart is now empty'],
+      formSubmitted: ['Form submitted','Request sent','Saved','Done'],
+      socialLogin: ['Continue with Social','Use Google','Use Apple','Use Facebook'],
+      clear: ['Clear','Reset','Empty','Wipe'],
+      roleUser: ['User','Customer','Member','Guest'],
+      roleAdmin: ['Admin','Administrator','Manager','Owner'],
+      moreFeatures: ['More features','Extras','Additional UI','And more'],
+      orderedList: ['Ordered list','Steps','Sequence','Process'],
+      unorderedList: ['Unordered list','Bullets','Checklist','Items'],
+      newsletterPH: ['Enter email for updates','Your email address','Join newsletter','Subscribe email'],
+      subscribe: ['Subscribe','Join','Sign up','Get updates']
+    };
+
+    function variantFor(key, idx){
+      const arr = variants[key];
+      if (!arr) return null;
+      return arr[idx % arr.length];
+    }
+
+    // snapshot originals once
+    function snapshotOriginals(){
+      qsa('[data-key]').forEach(el=>{
+        if (!state.originalSnapshots.has(el)){
+          state.originalSnapshots.set(el, {
+            text: el.textContent,
+            placeholder: el.placeholder,
+            id: el.id || null,
+            name: el.getAttribute('name') || null
+          });
+        }
+      });
+    }
+
+    function mutateTexts(){
+      qsa('[data-key]').forEach(el=>{
+        const key = el.dataset.key;
+        const next = variantFor(key, state.mutationIndex);
+        if (next){
+          if (el.placeholder !== undefined) {
+            el.placeholder = next;
+          }
+          // If input/select/textarea with placeholder-like text, update placeholder; else textContent
+          if (el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement){
+            // also update aria-label if present
+            if (el.hasAttribute('aria-label')) el.setAttribute('aria-label', next);
+          } else {
+            el.textContent = next;
+          }
+        }
+      });
+      // Update product qty labels and add-to-cart texts already handled during render via variantFor. Re-render.
+      renderProducts();
+    }
+
+    function mutateAttributes(){
+      // Change some IDs and names slightly to simulate drift
+      qsa('[data-rename="true"], input[data-key], button[data-key]').forEach(el=>{
+        const snap = state.originalSnapshots.get(el);
+        if (!snap) return;
+        const id = snap.id;
+        const name = snap.name;
+        // produce similar but different ids/names per cycle
+        const suffixes = ['-v2','-alt','-rev','-mk2'];
+        const snake = s => (s||'').replace(/-/g,'_');
+        if (id){
+          const variant = snake(id) + suffixes[state.mutationIndex % suffixes.length];
+          el.id = variant;
+          // If it was a label "for", fix associations too
+          if (el.tagName === 'LABEL'){
+            const forAttr = el.getAttribute('for');
+            if (forAttr){
+              el.setAttribute('for', snake(forAttr) + suffixes[state.mutationIndex % suffixes.length]);
+            }
+          }
+        }
+        if (name){
+          const variant = snake(name) + suffixes[(state.mutationIndex+1) % suffixes.length];
+          el.setAttribute('name', variant);
+        }
+      });
+      // Update any labels referencing changed IDs
+      qsa('label[for]').forEach(l=>{
+        const forId = l.getAttribute('for');
+        // If referenced element doesn't exist because we mutated input id, try to map by base id
+        // (This is a minimal heuristic; primarily labels with data-rename are already synced above)
+      });
+    }
+
+    function mutateStructure(){
+      // Wrap add-to-cart buttons once to alter DOM path; unwrap every other cycle
+      const shouldWrap = state.mutationIndex % 2 === 1;
+      qsa('.btn-add').forEach(btn=>{
+        const parent = btn.parentElement;
+        if (shouldWrap && !btn.closest('.btn-shell')){
+          const shell = document.createElement('div');
+          shell.className = 'btn-shell';
+          parent.insertBefore(shell, btn);
+          shell.appendChild(btn);
+        }
+        if (!shouldWrap && btn.closest('.btn-shell')){
+          const shell = btn.closest('.btn-shell');
+          shell.parentElement.insertBefore(btn, shell);
+          shell.remove();
+        }
+      });
+    }
+
+    function mutateUI(){
+      snapshotOriginals();
+      state.mutationIndex++;
+      mutateTexts();
+      mutateAttributes();
+      mutateStructure();
+      toast('UI mutated (' + state.mutationIndex + ')');
+    }
+
+    function resetUI(){
+      // restore texts, placeholders, ids, names
+      state.mutationIndex = 0;
+      state.originalSnapshots.forEach((snap, el)=>{
+        if (snap.text != null && !(el instanceof HTMLInputElement) && !(el instanceof HTMLTextAreaElement)) el.textContent = snap.text;
+        if (snap.placeholder != null && el.placeholder !== undefined) el.placeholder = snap.placeholder;
+        if (snap.id != null) el.id = snap.id;
+        if (snap.name != null) el.setAttribute('name', snap.name);
+      });
+      // Unwrap shells
+      qsa('.btn-shell .btn-add').forEach(btn=>{
+        const shell = btn.closest('.btn-shell'); if (!shell) return;
+        shell.parentElement.insertBefore(btn, shell); shell.remove();
+      });
+      renderProducts();
+      updateCartUI();
+      toast('UI reset');
+    }
+
+    // Buttons
+    qs('#btn-mutate').addEventListener('click', mutateUI);
+    qs('#btn-reset').addEventListener('click', resetUI);
+
+    // Initial render
+    renderProducts();
+    updateCartUI();
+    snapshotOriginals();
+  </script>
+</body>
+</html>
+```
